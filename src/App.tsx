@@ -52,11 +52,11 @@ const projects = [
       tagline: 'Your Neuroplasticity Visualized',
       question: 'How might we give people a window into their brain\'s changing structure — so they can finally see, feel, and act on the neural progress that\'s been invisible to them their entire lives?',
       inspiration: 'Proprioception tells you where your body is in space. But no sense has ever existed for perceiving your own brain changing. 72% of people building new habits find it hard to stay motivated. 46% report a lack of accountability. 48% don\'t even know if what they\'re doing is working. Mylo was built to close that gap.',
-      solution: 'Every person has a unique "neural fingerprint" — a pattern based on their brain structure that\'s constantly evolving. Mylo links to that fingerprint on login, asks about daily habits like sleep, stress, and physical activity, and lets users set a goal: learning a skill, improving performance, building a routine. As users show up, Mylo visualizes their neural pathways as seeds growing into full-bloomed flowers — neuroplasticity you can finally see.',
+      solution: 'Every person has a unique "neural fingerprint" — a pattern based on their brain structure that\'s constantly evolving. Mylo links to that fingerprint on login, asks about daily habits like sleep, stress, and physical activity, and lets users set a goal: learning a skill, improving performance, building a routine. As users show up, Mylo visualizes their neural pathways as seeds growing into full-bloomed flowers.',
       features: [
         { name: 'Neural Fingerprint', desc: 'A unique, evolving visualization of your brain\'s structure linked to your daily habits and behaviors.' },
-        { name: 'Goal Setting', desc: 'Choose a focus — learning a skill, physical performance, mental health — and Mylo tracks your progress toward it.' },
-        { name: 'Daily Check-ins', desc: 'Log sleep, activity, and stress. Each entry strengthens your neural connections inside the app.' },
+        { name: 'Goal Setting', desc: 'Choose a focus and Mylo tracks your progress toward it.' },
+        { name: 'Daily Check-ins', desc: 'Logs sleep, activity, and stress. Each entry strengthens your neural connections inside the app.' },
         { name: 'Growth Visualization', desc: 'Watch your neuro-pathways bloom from seeds into flowers as your habits take root over time.' },
       ],
       stats: [
@@ -65,7 +65,7 @@ const projects = [
         '48% don\'t know if their efforts are actually working',
       ],
       tools: 'Figma · Figma Make',
-      future: 'As brain-scanning technology becomes more accessible, Mylo is positioned to connect to real neural data — making the speculative tool of today a practical one tomorrow.',
+      
       caseStudyLink: 'https://www.figma.com/deck/CvEgCiajlWmSiguDme8MfC/Mylo--Figbuild-2026?node-id=2-42&t=4xLAZpMcqDndPp73-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1',
       prototypeLink: 'https://role-egg-62973314.figma.site',
       devpostLink: 'https://devpost.com/software/mylo?ref_content=my-projects-tab&ref_feature=my_projects',
@@ -83,13 +83,13 @@ const projects = [
     org: 'Out the Archive',
     caseStudy: {
       tagline: 'Pin the moment. Explore what others left behind.',
-      question: 'What if a single spot held hundreds of stories from strangers — all connected by the same physical space?',
+      
       inspiration: 'When I first heard the theme "Memories of Us," two things came to mind: how I keep memories, and how I share them. For me it\'s always been physical — photobooths, business cards from cafes, every handwritten card from friends and family. That love of tangible memory-keeping got me thinking about letters and postcards, connecting over a shared moment. Then I shifted from people to places. So many of my memories aren\'t just about who I was with — they\'re tied to a specific space. The feeling of walking back into somewhere and having it all rush back.',
-      solution: 'Dear, There. is a shared, anonymous space for leaving and discovering memories tied to real locations. No usernames, no likes — just honest little snapshots of moments that happened here. Make a postcard or a letter, add photos, stickers, and doodles, then pin it to the map for anyone passing through to find.',
+      solution: 'Dear, There. is a shared, anonymous space for leaving and discovering memories tied to real locations. No usernames, no likes. Make a postcard or a letter, add photos, stickers, and doodles, then pin it to the map for anyone passing through to find.',
       features: [
         { name: 'Postcard & Letter Maker', desc: 'Write a letter or design a postcard — add photos, stickers, and doodles to capture the moment exactly how you remember it.' },
         { name: 'Pin to the Map', desc: 'Attach your memory to a real location. Anyone who visits that spot can find what you left behind.' },
-        { name: 'Anonymous by Design', desc: 'No accounts, no usernames, no likes. Just honest memories from strangers connected by place.' },
+        { name: 'Anonymous by Design', desc: 'No accounts, no usernames, no likes.' },
         { name: 'Discover Memories', desc: 'Explore what others have pinned nearby — a shared archive of moments from the same spaces.' },
       ],
       stats: [],
