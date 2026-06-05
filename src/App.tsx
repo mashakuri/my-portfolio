@@ -170,7 +170,7 @@ function TypingName() {
           ))}
         </div>
       )}
-      <h1 style={{ fontSize: 72, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif', lineHeight: 1.05, whiteSpace: 'nowrap' }}>
+      <h1 style={{ fontSize: 62, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif', lineHeight: 1.05, whiteSpace: 'nowrap' }}>
         {displayed}
         {typing && <span style={{ display: 'inline-block', width: 3, height: '0.85em', background: ACCENT, marginLeft: 3, verticalAlign: 'middle', animation: 'blink 0.7s infinite' }} />}
       </h1>
@@ -232,7 +232,7 @@ function App() {
   const sectionStyle: React.CSSProperties = {
     height: '100vh', scrollSnapAlign: 'start', display: 'flex',
     flexDirection: 'column', justifyContent: 'flex-start',
-    padding: '25vh 80px 0 80px',
+    padding: '20vh 80px 0 80px',
   }
 
   const navItems = [
@@ -258,7 +258,7 @@ function App() {
       `}</style>
 
       {/* LEFT */}
-      <div style={{ width: '50vw', flexShrink: 0, height: '100vh', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '30vh 72px 0 122px' }}>
+      <div style={{ width: '50vw', flexShrink: 0, height: '100vh', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '20vh 72px 0 122px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <TypingName />
           <p style={{ fontSize: 19, color: '#444', margin: '18px 0 6px', fontFamily: 'Inria Serif, serif' }}>Cognitive Science · ML · Design</p>
@@ -330,7 +330,7 @@ function App() {
         <section id="me" style={sectionStyle}>
           <p style={{ fontSize: 10, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 28, marginTop: 0 }}>Me!</p>
           <p style={{ fontSize: 22, color: '#444', fontFamily: 'Inria Serif, serif', margin: '0 0 32px', lineHeight: 1.9, maxWidth: 680 }}>
-            First year at UC San Diego studying Cognitive Science with a concentration in Machine Learning — interested in product design and product management. Here to create experiences that bring people and culture closer together. 
+            First year at UC San Diego studying Cognitive Science with a concentration in Machine Learning — interested in product design and product management.
           </p>
           <p style={{ fontSize: 10, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 20, marginTop: 0 }}>Other Interests</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 680 }}>
