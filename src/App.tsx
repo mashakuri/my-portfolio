@@ -232,7 +232,7 @@ function App() {
   const sectionStyle: React.CSSProperties = {
     height: '100vh', scrollSnapAlign: 'start', display: 'flex',
     flexDirection: 'column', justifyContent: 'flex-start',
-    padding: '20vh 80px 0 80px',
+    padding: '18vh 80px 0 80px',
   }
 
   const navItems = [
@@ -258,7 +258,7 @@ function App() {
       `}</style>
 
       {/* LEFT */}
-      <div style={{ width: '50vw', flexShrink: 0, height: '100vh', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '20vh 72px 0 122px' }}>
+      <div style={{ width: '50vw', flexShrink: 0, height: '100vh', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '30vh 72px 0 122px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <TypingName />
           <p style={{ fontSize: 19, color: '#444', margin: '18px 0 6px', fontFamily: 'Inria Serif, serif' }}>Cognitive Science · ML · Design</p>
