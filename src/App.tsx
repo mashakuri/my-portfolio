@@ -444,9 +444,12 @@ function App() {
 
               {activeProject.caseStudy.tagline ? (
                 <>
-                  <p style={{ fontSize: 9, letterSpacing: '0.12em', color: '#bbb', textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 8px' }}>The Question</p>
-                  <p style={{ fontSize: 18, lineHeight: 1.8, color: '#444', fontFamily: 'Inria Serif, serif', margin: '0 0 28px' }}>{activeProject.caseStudy.question}</p>
-
+                  {activeProject.caseStudy.question && (
+  <>
+    <p style={{ fontSize: 9, letterSpacing: '0.12em', color: '#bbb', textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 8px' }}>The Question</p>
+    <p style={{ fontSize: 18, lineHeight: 1.8, color: '#444', fontFamily: 'Inria Serif, serif', margin: '0 0 28px' }}>{activeProject.caseStudy.question}</p>
+  </>
+)}
                   <p style={{ fontSize: 9, letterSpacing: '0.12em', color: '#bbb', textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 8px' }}>Inspiration</p>
                   <p style={{ fontSize: 16, lineHeight: 1.8, color: '#666', fontFamily: 'Inria Serif, serif', margin: '0 0 28px' }}>{activeProject.caseStudy.inspiration}</p>
 
