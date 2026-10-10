@@ -142,10 +142,20 @@ const projects = [
 const FULL_NAME = 'Masha Kuritsyn'
 const ACCENT = '#C6B3E3'
 
+// Motion for the intro → two-column transition
+const EASE = 'cubic-bezier(0.65, 0, 0.35, 1)'
+const MOVE = `1s ${EASE}`
+// Things that stay hidden on the intro screen and fade in once it slides away
+const revealed = (intro: boolean, delay = 0): React.CSSProperties => ({
+  opacity: intro ? 0 : 1,
+  transform: intro ? 'translateY(8px)' : 'none',
+  pointerEvents: intro ? 'none' : 'auto',
+  transition: intro ? 'opacity 0.3s ease, transform 0.3s ease' : `opacity 0.6s ease ${delay + 0.5}s, transform 0.6s ease ${delay + 0.5}s`,
+})
+
 function TypingName() {
   const [displayed, setDisplayed] = useState('')
   const [typing, setTyping] = useState(true)
-  const [hovered, setHovered] = useState(false)
   const [showBox, setShowBox] = useState(true)
 
   useEffect(() => {
@@ -159,20 +169,21 @@ function TypingName() {
   }, [displayed, typing])
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {(showBox || hovered) && (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      {showBox && (
         <div style={{ position: 'absolute', inset: '-8px -12px', border: `1px dashed ${ACCENT}`, pointerEvents: 'none' }}>
           {[{ top: -3, left: -3 }, { top: -3, right: -3 }, { bottom: -3, left: -3 }, { bottom: -3, right: -3 }].map((s, i) => (
             <div key={i} style={{ position: 'absolute', width: 5, height: 5, border: `1.5px solid ${ACCENT}`, background: '#f5f5f5', boxSizing: 'border-box', ...s as any }} />
           ))}
         </div>
       )}
-      <h1 style={{ fontSize: 62, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif', lineHeight: 1.05, whiteSpace: 'nowrap' }}>
-        {displayed}
-        {typing && <span style={{ display: 'inline-block', width: 3, height: '0.85em', background: ACCENT, marginLeft: 3, verticalAlign: 'middle', animation: 'blink 0.7s infinite' }} />}
+      {/* The hidden copy of the full name keeps the width fixed while letters type in, so the layout doesn't jump */}
+      <h1 style={{ fontSize: 62, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif', lineHeight: 1.05, whiteSpace: 'nowrap', position: 'relative' }}>
+        <span style={{ visibility: 'hidden' }}>{FULL_NAME}</span>
+        <span style={{ position: 'absolute', left: 0, top: 0 }}>
+          {displayed}
+          {typing && <span style={{ display: 'inline-block', width: 3, height: '0.85em', background: ACCENT, marginLeft: 3, verticalAlign: 'middle', animation: 'blink 0.7s infinite' }} />}
+        </span>
       </h1>
     </div>
   )
@@ -212,10 +223,90 @@ function App() {
   const [activeSection, setActiveSection] = useState('projects')
   const rightCol = useRef<HTMLDivElement>(null)
 
+  // ── Intro: name + photo start centered, then slide to the left on the first scroll ──
+  const [intro, setIntro] = useState(true)
+  const introRef = useRef(true)
+  const modalRef = useRef(false)
+  const lockUntil = useRef(0)
+  const lastWheel = useRef(0)
+  const lastScroll = useRef(0)
+  const hero = useRef<HTMLDivElement>(null)
+  const heroParts = useRef<(HTMLDivElement | null)[]>([])
+  const [centerShift, setCenterShift] = useState<number[]>([])
+  const [introScale, setIntroScale] = useState(1.12)
+
+  useEffect(() => { modalRef.current = !!activeProject }, [activeProject])
+
+  const goIntro = (v: boolean) => {
+    introRef.current = v
+    setIntro(v)
+    lockUntil.current = Date.now() + 1100 // ignore leftover trackpad momentum while it animates
+  }
+
+  // Measure each line so it can sit centered during the intro, then glide back to left-aligned
+  useEffect(() => {
+    const measure = () => {
+      const parts = heroParts.current.filter(Boolean) as HTMLDivElement[]
+      const widest = Math.max(...parts.map(p => p.offsetWidth))
+      setCenterShift(heroParts.current.map(p => p ? (widest - p.offsetWidth) / 2 : 0))
+      const h = hero.current
+      if (h) setIntroScale(Math.min(1.12, (window.innerWidth - 48) / h.offsetWidth, (window.innerHeight - 120) / h.offsetHeight))
+    }
+    measure()
+    document.fonts?.ready.then(measure)
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  useEffect(() => {
+    const atTop = () => (rightCol.current?.scrollTop ?? 0) <= 0
+    const onWheel = (e: WheelEvent) => {
+      if (modalRef.current) return
+      const now = Date.now()
+      const newGesture = now - lastWheel.current > 180
+      lastWheel.current = now
+      if (now < lockUntil.current) { e.preventDefault(); return }
+      if (introRef.current) {
+        e.preventDefault()
+        if (e.deltaY > 2) goIntro(false)
+        return
+      }
+      // Scrolling up from the very top of the projects brings the intro back
+      if (e.deltaY < -2 && newGesture && atTop() && now - lastScroll.current > 300) {
+        e.preventDefault()
+        goIntro(true)
+      }
+    }
+    let touchY = 0, touchStartedAtTop = false
+    const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0].clientY; touchStartedAtTop = atTop() }
+    const onTouchEnd = (e: TouchEvent) => {
+      if (modalRef.current || Date.now() < lockUntil.current) return
+      const dy = touchY - e.changedTouches[0].clientY
+      if (introRef.current && dy > 30) goIntro(false)
+      else if (!introRef.current && dy < -30 && touchStartedAtTop) goIntro(true)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setActiveProject(null); return }
+      if (modalRef.current) return
+      if (introRef.current && ['ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); goIntro(false) }
+      else if (!introRef.current && ['ArrowUp', 'PageUp'].includes(e.key) && atTop()) { e.preventDefault(); goIntro(true) }
+    }
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchend', onTouchEnd, { passive: true })
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [])
+
   useEffect(() => {
     const el = rightCol.current
     if (!el) return
-    const onScroll = () => { if (el.scrollTop > 40) setShowArrow(false) }
+    const onScroll = () => { lastScroll.current = Date.now(); if (el.scrollTop > 40) setShowArrow(false) }
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
   }, [])
@@ -248,22 +339,42 @@ function App() {
   })
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#f5f5f5', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#f5f5f5', overflow: 'hidden', position: 'relative' }}>
       <DesignCanvas />
       <DesignerCursor modalOpen={!!activeProject} />
 
       <style>{`
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { * { transition-duration: 0.01s !important; animation-duration: 0.01s !important; } }
       `}</style>
 
-      {/* LEFT */}
-      <div style={{ width: '50vw', flexShrink: 0, height: '100vh', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '30vh 72px 0 122px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <TypingName />
-          <p style={{ fontSize: 19, color: '#444', margin: '18px 0 6px', fontFamily: 'Inria Serif, serif' }}>Cognitive Science · ML · Design</p>
-          <p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif' }}>UC San Diego</p>
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 48 }}>
+      {/* HERO — photo, name, major, school. Centered on load, slides into the left column on scroll */}
+      <div ref={hero} style={{
+        position: 'absolute', zIndex: 5,
+        left: intro ? '50%' : 122,
+        top: intro ? '50%' : '17vh',
+        transform: intro ? `translate(-50%, -50%) scale(${introScale})` : 'translate(0, 0) scale(1)',
+        transition: `left ${MOVE}, top ${MOVE}, transform ${MOVE}`,
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+      }}>
+        {[
+          <div style={{ position: 'relative', width: 112, height: 112, marginBottom: 28, opacity: 0, animation: 'fadeUp 0.8s ease 0.2s forwards' }}>
+            <img src="/headshot.jpg" alt="Masha Kuritsyn"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
+          </div>,
+          <TypingName />,
+          <p style={{ fontSize: 19, color: '#444', margin: '18px 0 6px', fontFamily: 'Inria Serif, serif', opacity: 0, animation: 'fadeUp 0.7s ease 1.4s forwards' }}>Cognitive Science · ML · Design</p>,
+          <p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif', opacity: 0, animation: 'fadeUp 0.7s ease 1.6s forwards' }}>UC San Diego</p>,
+        ].map((el, i) => (
+          <div key={i} ref={r => { heroParts.current[i] = r }}
+            style={{ width: 'fit-content', transform: `translateX(${intro ? centerShift[i] ?? 0 : 0}px)`, transition: `transform ${MOVE}` }}>
+            {el}
+          </div>
+        ))}
+
+        <nav style={{ position: 'absolute', top: '100%', left: 0, display: 'flex', flexDirection: 'column', gap: 12, marginTop: 48, ...revealed(intro, 0.35) }}>
             {navItems.map(({ label, id }) => {
               const isActive = activeSection === id
               return (
@@ -274,9 +385,26 @@ function App() {
                 >{label}</a>
               )
             })}
-          </nav>
-        </div>
-        <div style={{ position: 'absolute', bottom: 64, left: 122, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        </nav>
+      </div>
+
+      {/* Scroll hint shown only on the intro screen */}
+      <button onClick={() => goIntro(false)} aria-label="Scroll to projects"
+        style={{
+          position: 'absolute', bottom: 36, left: '50%', transform: 'translateX(-50%)', zIndex: 6,
+          background: 'none', border: 'none', padding: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+          opacity: intro ? 1 : 0, pointerEvents: intro ? 'auto' : 'none',
+          transition: intro ? 'opacity 0.6s ease 0.6s' : 'opacity 0.3s ease',
+        }}>
+        <span style={{ fontSize: 12, fontFamily: 'monospace', color: ACCENT, letterSpacing: '0.1em' }}>scroll</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'bounce 1.4s infinite' }}>
+          <path d="M12 5v14M5 12l7 7 7-7"/>
+        </svg>
+      </button>
+
+      {/* LEFT — holds the space for the hero, plus contact links that appear after the intro */}
+      <div style={{ width: '50vw', flexShrink: 0, height: '100vh', position: 'relative' }}>
+        <div style={{ position: 'absolute', bottom: 64, left: 122, display: 'flex', flexDirection: 'column', gap: 14, ...revealed(intro, 0.45) }}>
           {[
             { href: 'https://www.linkedin.com/in/masha-kuritsyn/', label: 'linkedin.com/in/masha-kuritsyn', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg> },
             { href: 'mailto:mkuritsyn@ucsd.edu', label: 'mkuritsyn@ucsd.edu', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> },
@@ -292,8 +420,12 @@ function App() {
       </div>
 
       {/* RIGHT */}
-      <div ref={rightCol} style={{ width: '50vw', height: '100vh', overflowY: 'scroll', scrollSnapType: 'y mandatory', position: 'relative' }}>
-        <div style={{ position: 'fixed', bottom: 28, right: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, opacity: showArrow ? 1 : 0, transition: 'opacity 0.5s', pointerEvents: 'none', zIndex: 100 }}>
+      <div ref={rightCol} style={{
+        width: '50vw', height: '100vh', overflowY: intro ? 'hidden' : 'scroll', scrollSnapType: 'y mandatory', position: 'relative',
+        opacity: intro ? 0 : 1, transform: intro ? 'translateX(60px)' : 'none', pointerEvents: intro ? 'none' : 'auto',
+        transition: intro ? 'opacity 0.4s ease, transform 0.4s ease' : `opacity 0.8s ease 0.3s, transform 0.9s ${EASE} 0.3s`,
+      }}>
+        <div style={{ position: 'fixed', bottom: 28, right: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, opacity: showArrow && !intro ? 1 : 0, transition: 'opacity 0.5s', pointerEvents: 'none', zIndex: 100 }}>
           <span style={{ fontSize: 12, fontFamily: 'monospace', color: ACCENT, letterSpacing: '0.1em' }}>scroll</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'bounce 1.4s infinite' }}>
             <path d="M12 5v14M5 12l7 7 7-7"/>
@@ -330,7 +462,7 @@ function App() {
         <section id="me" style={sectionStyle}>
           <p style={{ fontSize: 10, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 28, marginTop: 0 }}>Me!</p>
           <p style={{ fontSize: 22, color: '#444', fontFamily: 'Inria Serif, serif', margin: '0 0 32px', lineHeight: 1.9, maxWidth: 680 }}>
-            First year at UC San Diego studying Cognitive Science with a concentration in Machine Learning — interested in product design and product management.
+            Second year at UC San Diego studying Cognitive Science with a concentration in Machine Learning — interested in product design and product management.
           </p>
           <p style={{ fontSize: 10, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 20, marginTop: 0 }}>Other Interests</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 680 }}>
