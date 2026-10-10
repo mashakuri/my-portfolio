@@ -5,6 +5,7 @@ export default function DesignerCursor({ modalOpen = false }: { modalOpen?: bool
   const [visible, setVisible] = useState(false)
   const [box, setBox] = useState<{ top: number; left: number; width: number; height: number; label: string } | null>(null)
   const rafRef = useRef<number | null>(null)
+  const last = useRef<{ x: number; y: number } | null>(null)
   const R = 10, ARM = 7, DOT = 2
   const C = "#C6B3E3"
   const INK = "#7E6996" // muted text purple
@@ -18,8 +19,12 @@ export default function DesignerCursor({ modalOpen = false }: { modalOpen?: bool
         rafRef.current = null
       })
       setVisible(true)
-
-      const el = (e.target as HTMLElement).closest('h1,a,button') as HTMLElement | null
+      last.current = { x: e.clientX, y: e.clientY }
+      updateBox(e.target as Element)
+    }
+    // Draw the selection box around whatever link/heading/button is under the cursor
+    const updateBox = (target: Element | null) => {
+      const el = target?.closest('h1,a,button') as HTMLElement | null
       // elements that draw their own frame (like the name) are skipped so there's no double box
       if (el && !el.closest('[data-own-frame]') && el.offsetWidth < window.innerWidth * 0.95) {
         const r = el.getBoundingClientRect()
@@ -28,10 +33,19 @@ export default function DesignerCursor({ modalOpen = false }: { modalOpen?: bool
         setBox(null)
       }
     }
+    // When the page scrolls under a still mouse, re-check what's under it so the box doesn't get left behind
+    const onScroll = () => {
+      if (!last.current) return
+      updateBox(document.elementFromPoint(last.current.x, last.current.y))
+    }
+    document.addEventListener("scroll", onScroll, true)
     document.addEventListener("mousemove", onMove)
     document.addEventListener("mouseleave", () => setVisible(false))
     document.addEventListener("mouseenter", () => { if (!modalOpen) setVisible(true) })
-    return () => document.removeEventListener("mousemove", onMove)
+    return () => {
+      document.removeEventListener("mousemove", onMove)
+      document.removeEventListener("scroll", onScroll, true)
+    }
   }, [modalOpen])
 
   return (

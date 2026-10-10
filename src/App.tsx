@@ -14,7 +14,7 @@ const projects = [
     title: 'Kitchens for Good Mural',
     logo: '/KFG.png',
     tag: 'UX Designer · Jun – Sep 2026',
-    org: 'Kitchens for Good',
+    org: 'DesignCo, Upgrade Program',
     caseStudy: {
       tagline: '',                // empty → popup shows "Case study coming soon"
       question: '',
@@ -218,10 +218,10 @@ function Photo({ shown, framed }: { shown: boolean, framed: boolean }) {
 }
 
 // A line of text that shows a dashed selection frame on hover
-function FramedLine({ top, framed, children }: { top: number, framed: boolean, children: React.ReactNode }) {
+function FramedLine({ top, bottom, framed, children }: { top: number, bottom: number, framed: boolean, children: React.ReactNode }) {
   const [hovered, setHovered] = useState(false)
   return (
-    <div style={{ paddingTop: top, paddingBottom: 6 }}>
+    <div style={{ paddingTop: top, paddingBottom: bottom }}>
       <div style={{ position: 'relative' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         {children}
         <SelectionBox label="p" visible={framed && hovered} inset={`-4px -${FRAME_X}px`} />
@@ -295,6 +295,7 @@ function App() {
   const [activeProject, setActiveProject] = useState<typeof projects[0] | null>(null)
   const [showArrow, setShowArrow] = useState(true)
   const [activeSection, setActiveSection] = useState('projects')
+  const [toolkitOpen, setToolkitOpen] = useState(false)
   const rightCol = useRef<HTMLDivElement>(null)
 
   // ── Intro: name + photo start centered, then slide to the left on the first scroll ──
@@ -451,8 +452,8 @@ function App() {
         {[
           { collapsible: true, el: <div style={{ paddingBottom: 28 }}><Photo shown={heroOpen} framed={heroSettled} /></div> },
           { collapsible: false, el: <TypingName onReveal={() => setHeroOpen(true)} /> },
-          { collapsible: true, el: <FramedLine top={20} framed={heroSettled}><p style={{ fontSize: 19, color: '#444', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.1) }}>Cognitive Science · ML · Design</p></FramedLine> },
-          { collapsible: true, el: <FramedLine top={16} framed={heroSettled}><p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.2) }}>UC San Diego</p></FramedLine> },
+          { collapsible: true, el: <FramedLine top={18} bottom={6} framed={heroSettled}><p style={{ fontSize: 19, color: '#444', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.1) }}>Cognitive Science · ML · Design</p></FramedLine> },
+          { collapsible: true, el: <FramedLine top={0} bottom={0} framed={heroSettled}><p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.2) }}>UC San Diego</p></FramedLine> },
         ].map(({ collapsible, el }, i) => (
           <div key={i} ref={r => { heroParts.current[i] = r }}
             style={{
@@ -530,21 +531,44 @@ function App() {
                 onMouseEnter={e => (e.currentTarget.style.borderColor = ACCENT)}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = '#ddd')}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 32, marginBottom: 4 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {p.logo && <img src={p.logo} alt="" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} />}
-                    <p style={{ fontSize: 19, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif' }}>{p.title}</p>
-                  </div>
-                  <span style={{ fontSize: 11, color: INK, fontFamily: 'monospace', textAlign: 'right', flexShrink: 0 }}>{p.tag}</span>
-                </div>
-                <p style={{ fontSize: 12, color: '#aaa', margin: '4px 0 0', fontFamily: 'monospace' }}>{p.org}</p>
+                {(() => {
+                  // tag reads "Role · Role · Date" — date goes top-right, role sits under it
+                  const cut = p.tag.lastIndexOf(' · ')
+                  const role = cut > -1 ? p.tag.slice(0, cut) : ''
+                  const date = cut > -1 ? p.tag.slice(cut + 3) : p.tag
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: '38px 1fr auto', columnGap: 0, rowGap: 4, alignItems: 'center' }}>
+                      <div style={{ gridRow: '1 / span 2', alignSelf: 'center' }}>
+                        {p.logo && <img src={p.logo} alt="" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4, display: 'block' }} />}
+                      </div>
+                      <p style={{ fontSize: 19, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif' }}>{p.title}</p>
+                      <span style={{ fontSize: 11, color: INK, fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', paddingLeft: 24 }}>{date}</span>
+                      <p style={{ fontSize: 12, color: '#aaa', margin: 0, fontFamily: 'monospace' }}>{p.org}</p>
+                      <span style={{ fontSize: 11, color: '#999', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', paddingLeft: 24 }}>{role}</span>
+                    </div>
+                  )
+                })()}
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxWidth: 680, marginTop: 24 }}>
-            {skills.map(s => (
-              <span key={s} style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', border: '1px dashed #ddd', background: '#f5f5f5', padding: '5px 12px', letterSpacing: '0.03em' }}>{s}</span>
-            ))}
+          {/* Toolkit: one button that unfolds the skill tags */}
+          <div style={{ maxWidth: 680, marginTop: 24 }}>
+            <button onClick={() => setToolkitOpen(o => !o)} aria-expanded={toolkitOpen}
+              style={{ fontSize: 11, fontFamily: 'monospace', color: toolkitOpen ? INK : '#999', border: `1px dashed ${toolkitOpen ? ACCENT : '#ddd'}`, background: '#f5f5f5', padding: '6px 14px', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = INK }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = toolkitOpen ? ACCENT : '#ddd'; e.currentTarget.style.color = toolkitOpen ? INK : '#999' }}>
+              my toolkit <span style={{ opacity: 0.7 }}>({skills.length})</span>
+              <span style={{ display: 'inline-block', transform: toolkitOpen ? 'rotate(45deg)' : 'none', transition: `transform 0.3s ${EASE}` }}>+</span>
+            </button>
+            <div style={{ display: 'grid', gridTemplateRows: toolkitOpen ? '1fr' : '0fr', transition: `grid-template-rows 0.45s ${EASE}` }}>
+              <div style={{ minHeight: 0, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 12 }}>
+                  {skills.map((s, i) => (
+                    <span key={s} style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', border: '1px dashed #ddd', background: '#f5f5f5', padding: '5px 12px', letterSpacing: '0.03em', opacity: toolkitOpen ? 1 : 0, transform: toolkitOpen ? 'none' : 'translateY(-4px)', transition: `opacity 0.3s ease ${toolkitOpen ? i * 0.02 : 0}s, transform 0.3s ease ${toolkitOpen ? i * 0.02 : 0}s` }}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
