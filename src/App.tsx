@@ -140,7 +140,8 @@ const projects = [
 ]
 
 const FULL_NAME = 'Masha Kuritsyn'
-const ACCENT = '#C6B3E3'
+const ACCENT = '#C6B3E3' // light purple for lines, borders, frames
+const INK = '#7F5FB8'    // darker purple for text, so it's easy to read
 
 // Motion for the intro → two-column transition
 const EASE = 'cubic-bezier(0.65, 0, 0.35, 1)'
@@ -168,24 +169,16 @@ function SelectionBox({ label, visible, inset = '-8px -8px' }: { label?: string,
       <div style={{ ...corner, bottom: -3, left: -3 }} />
       <div style={{ ...corner, bottom: -3, right: -3 }} />
       {label && (
-        <div style={{ position: 'absolute', top: -19, left: -1, background: ACCENT, color: '#fff', fontSize: 9, fontFamily: 'monospace', padding: '2px 6px', whiteSpace: 'nowrap', letterSpacing: '0.03em' }}>{label}</div>
+        <div style={{ position: 'absolute', top: -19, left: -1, background: INK, color: '#fff', fontSize: 9, fontFamily: 'monospace', padding: '2px 6px', whiteSpace: 'nowrap', letterSpacing: '0.03em' }}>{label}</div>
       )}
     </div>
   )
 }
 
-// Square photo that behaves like a Figma component: frame shows on its own when it first pops in, then on hover
-function Photo({ shown }: { shown: boolean }) {
-  const [hovered, setHovered] = useState(false)
-  const [intro, setIntro] = useState(false)
-  useEffect(() => {
-    if (!shown) return
-    const a = setTimeout(() => setIntro(true), 1000)
-    const b = setTimeout(() => setIntro(false), 2900)
-    return () => { clearTimeout(a); clearTimeout(b) }
-  }, [shown])
+// Square photo that looks like a selected Figma component (frame stays on)
+function Photo({ shown, framed }: { shown: boolean, framed: boolean }) {
   return (
-    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+    <div
       style={{
         position: 'relative', width: 148, height: 148,
         opacity: shown ? 1 : 0, transform: shown ? 'scale(1)' : 'scale(0.85)',
@@ -193,12 +186,24 @@ function Photo({ shown }: { shown: boolean }) {
       }}>
       <img src="/headshot.jpg" alt="Masha Kuritsyn"
         style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3, display: 'block' }} />
-      <SelectionBox label="❖ masha.jpg" visible={intro || hovered} />
+      <SelectionBox label="★ masha.jpg" visible={framed} />
     </div>
   )
 }
 
-function TypingName({ onDone }: { onDone?: () => void }) {
+// A line of text with a dashed selection frame around it
+function FramedLine({ top, framed, children }: { top: number, framed: boolean, children: React.ReactNode }) {
+  return (
+    <div style={{ paddingTop: top, paddingBottom: 6 }}>
+      <div style={{ position: 'relative' }}>
+        {children}
+        <SelectionBox visible={framed} inset="-4px -9px" />
+      </div>
+    </div>
+  )
+}
+
+function TypingName({ onReveal }: { onReveal?: () => void }) {
   const [displayed, setDisplayed] = useState('')
   const [typing, setTyping] = useState(true)
   const [showBox, setShowBox] = useState(true)
@@ -206,10 +211,11 @@ function TypingName({ onDone }: { onDone?: () => void }) {
   useEffect(() => {
     if (!typing) return
     if (displayed.length === FULL_NAME.length) {
-      setTimeout(() => { setTyping(false); setShowBox(false); onDone?.() }, 600)
+      setTimeout(() => { setTyping(false); setShowBox(false) }, 500)
       return
     }
-    const t = setTimeout(() => setDisplayed(FULL_NAME.slice(0, displayed.length + 1)), 80)
+    if (displayed.length === 9) onReveal?.() // "Masha Kur" — start bringing in the rest while the last name finishes
+    const t = setTimeout(() => setDisplayed(FULL_NAME.slice(0, displayed.length + 1)), 65)
     return () => clearTimeout(t)
   }, [displayed, typing])
 
@@ -284,7 +290,7 @@ function App() {
 
   useEffect(() => {
     if (!heroOpen) return
-    const t = setTimeout(() => setHeroSettled(true), 950)
+    const t = setTimeout(() => setHeroSettled(true), 900)
     return () => clearTimeout(t)
   }, [heroOpen])
 
@@ -388,7 +394,7 @@ function App() {
   const linkStyle = (accent = false): React.CSSProperties => ({
     fontSize: 11, fontFamily: 'monospace', textDecoration: 'none',
     border: `1px solid ${accent ? ACCENT : '#ddd'}`,
-    color: accent ? ACCENT : '#999',
+    color: accent ? INK : '#999',
     padding: '6px 14px', borderRadius: 4, transition: 'all 0.2s',
   })
 
@@ -420,10 +426,10 @@ function App() {
         {/* Step 1: only the name, typing in. Step 2: space opens above/below it (name eases down a little)
             while the photo pops up and the major + school fade in together. */}
         {[
-          { collapsible: true, el: <div style={{ paddingBottom: 28 }}><Photo shown={heroOpen} /></div> },
-          { collapsible: false, el: <TypingName onDone={() => setHeroOpen(true)} /> },
-          { collapsible: true, el: <p style={{ fontSize: 19, color: '#444', margin: 0, padding: '18px 0 6px', fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.15) }}>Cognitive Science · ML · Design</p> },
-          { collapsible: true, el: <p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.25) }}>UC San Diego</p> },
+          { collapsible: true, el: <div style={{ paddingBottom: 28 }}><Photo shown={heroOpen} framed={heroSettled} /></div> },
+          { collapsible: false, el: <TypingName onReveal={() => setHeroOpen(true)} /> },
+          { collapsible: true, el: <FramedLine top={20} framed={heroSettled}><p style={{ fontSize: 19, color: '#444', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.1) }}>Cognitive Science · ML · Design</p></FramedLine> },
+          { collapsible: true, el: <FramedLine top={16} framed={heroSettled}><p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.2) }}>UC San Diego</p></FramedLine> },
         ].map(({ collapsible, el }, i) => (
           <div key={i} ref={r => { heroParts.current[i] = r }}
             style={{
@@ -439,7 +445,7 @@ function App() {
               const isActive = activeSection === id
               return (
                 <a key={id} href={`#${id}`}
-                  style={{ fontSize: 14, color: ACCENT, textDecoration: 'none', fontFamily: 'monospace', transition: 'all 0.2s', letterSpacing: '0.05em', borderBottom: isActive ? `1px solid ${ACCENT}` : '1px solid transparent', paddingBottom: 2, width: 'fit-content', opacity: isActive ? 1 : 0.55 }}
+                  style={{ fontSize: 14, color: INK, textDecoration: 'none', fontFamily: 'monospace', transition: 'all 0.2s', letterSpacing: '0.05em', borderBottom: isActive ? `1px solid ${INK}` : '1px solid transparent', paddingBottom: 2, width: 'fit-content', opacity: isActive ? 1 : 0.55 }}
                   onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
                   onMouseLeave={e => (e.currentTarget.style.opacity = isActive ? '1' : '0.55')}
                 >{label}</a>
@@ -456,8 +462,8 @@ function App() {
           opacity: intro ? 1 : 0, pointerEvents: intro ? 'auto' : 'none',
           transition: intro ? 'opacity 0.6s ease 0.6s' : 'opacity 0.3s ease',
         }}>
-        <span style={{ fontSize: 12, fontFamily: 'monospace', color: ACCENT, letterSpacing: '0.1em' }}>scroll</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'bounce 1.4s infinite' }}>
+        <span style={{ fontSize: 12, fontFamily: 'monospace', color: INK, letterSpacing: '0.1em' }}>scroll</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={INK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'bounce 1.4s infinite' }}>
           <path d="M12 5v14M5 12l7 7 7-7"/>
         </svg>
       </button>
@@ -472,7 +478,7 @@ function App() {
           ].map(({ href, label, icon }) => (
             <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined}
               style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#999', textDecoration: 'none', transition: 'color 0.2s', fontSize: 13, fontFamily: 'monospace' }}
-              onMouseEnter={e => (e.currentTarget.style.color = ACCENT)}
+              onMouseEnter={e => (e.currentTarget.style.color = INK)}
               onMouseLeave={e => (e.currentTarget.style.color = '#999')}
             >{icon}{label}</a>
           ))}
@@ -486,8 +492,8 @@ function App() {
         transition: intro ? 'opacity 0.4s ease, transform 0.4s ease' : `opacity 0.8s ease 0.3s, transform 0.9s ${EASE} 0.3s`,
       }}>
         <div style={{ position: 'fixed', bottom: 28, right: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, opacity: showArrow && !intro ? 1 : 0, transition: 'opacity 0.5s', pointerEvents: 'none', zIndex: 100 }}>
-          <span style={{ fontSize: 12, fontFamily: 'monospace', color: ACCENT, letterSpacing: '0.1em' }}>scroll</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'bounce 1.4s infinite' }}>
+          <span style={{ fontSize: 12, fontFamily: 'monospace', color: INK, letterSpacing: '0.1em' }}>scroll</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={INK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'bounce 1.4s infinite' }}>
             <path d="M12 5v14M5 12l7 7 7-7"/>
           </svg>
         </div>
@@ -506,7 +512,7 @@ function App() {
                     {p.logo && <img src={p.logo} alt="" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} />}
                     <p style={{ fontSize: 19, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif' }}>{p.title}</p>
                   </div>
-                  <span style={{ fontSize: 11, color: ACCENT, fontFamily: 'monospace' }}>{p.tag}</span>
+                  <span style={{ fontSize: 11, color: INK, fontFamily: 'monospace' }}>{p.tag}</span>
                 </div>
                 <p style={{ fontSize: 12, color: '#aaa', margin: '4px 0 0', fontFamily: 'monospace' }}>{p.org}</p>
               </div>
@@ -549,7 +555,7 @@ function App() {
               <div key={title} style={{ borderLeft: `2px solid ${ACCENT}`, paddingLeft: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 10 }}>
                   <p style={{ fontSize: 15, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif' }}>{title}</p>
-                  <a href={link} target="_blank" style={{ fontSize: 10, fontFamily: 'monospace', color: ACCENT, textDecoration: 'none', opacity: 0.8, transition: 'opacity 0.2s' }}
+                  <a href={link} target="_blank" style={{ fontSize: 10, fontFamily: 'monospace', color: INK, textDecoration: 'none', opacity: 0.8, transition: 'opacity 0.2s' }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
                     onMouseLeave={e => (e.currentTarget.style.opacity = '0.8')}
                   >↗ instagram</a>
@@ -600,13 +606,13 @@ function App() {
 
             {/* RIGHT — info */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '44px 48px' }}>
-              <p style={{ fontSize: 9, letterSpacing: '0.15em', color: ACCENT, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 10px' }}>{activeProject.org}</p>
+              <p style={{ fontSize: 9, letterSpacing: '0.15em', color: INK, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 10px' }}>{activeProject.org}</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 16 }}>
                 <h2 style={{ fontSize: 38, fontWeight: 400, fontFamily: 'Inria Serif, serif', margin: 0, lineHeight: 1.1 }}>{activeProject.title}</h2>
                 {activeProject.caseStudy.tagline && (
                   <>
                     <span style={{ color: '#ddd', fontSize: 24 }}>·</span>
-                    <span style={{ fontSize: 19, fontFamily: 'Inria Serif, serif', color: ACCENT, fontStyle: 'italic' }}>{activeProject.caseStudy.tagline}</span>
+                    <span style={{ fontSize: 19, fontFamily: 'Inria Serif, serif', color: INK, fontStyle: 'italic' }}>{activeProject.caseStudy.tagline}</span>
                   </>
                 )}
               </div>
@@ -615,19 +621,19 @@ function App() {
                 <div style={{ display: 'flex', gap: 12, marginBottom: 32, flexWrap: 'wrap' }}>
                   {activeProject.caseStudy.caseStudyLink && (
                     <a href={activeProject.caseStudy.caseStudyLink} target="_blank" style={linkStyle(true)}
-                      onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.color = '#fff' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = ACCENT }}
+                      onMouseEnter={e => { e.currentTarget.style.background = INK; e.currentTarget.style.color = '#fff' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = INK }}
                     >Full Case Study →</a>
                   )}
                   {activeProject.caseStudy.prototypeLink && (
                     <a href={activeProject.caseStudy.prototypeLink} target="_blank" style={linkStyle()}
-                      onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = ACCENT }}
+                      onMouseEnter={e => { e.currentTarget.style.background = INK; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = INK }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#999'; e.currentTarget.style.borderColor = '#ddd' }}
                     >Try Prototype →</a>
                   )}
                   {activeProject.caseStudy.devpostLink && (
                     <a href={activeProject.caseStudy.devpostLink} target="_blank" style={linkStyle()}
-                      onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = ACCENT }}
+                      onMouseEnter={e => { e.currentTarget.style.background = INK; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = INK }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#999'; e.currentTarget.style.borderColor = '#ddd' }}
                     >Devpost →</a>
                   )}
@@ -684,16 +690,16 @@ function App() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, borderTop: '1px solid #f0f0f0', paddingTop: 24 }}>
                     <div>
-                      <p style={{ fontSize: 9, letterSpacing: '0.12em', color: ACCENT, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 6px' }}>Role</p>
+                      <p style={{ fontSize: 9, letterSpacing: '0.12em', color: INK, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 6px' }}>Role</p>
                       <p style={{ fontSize: 14, color: '#666', fontFamily: 'Inria Serif, serif', margin: 0, lineHeight: 1.6 }}>{activeProject.caseStudy.role}</p>
                     </div>
                     <div>
-                      <p style={{ fontSize: 9, letterSpacing: '0.12em', color: ACCENT, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 6px' }}>Tools</p>
+                      <p style={{ fontSize: 9, letterSpacing: '0.12em', color: INK, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 6px' }}>Tools</p>
                       <p style={{ fontSize: 14, color: '#666', fontFamily: 'Inria Serif, serif', margin: 0 }}>{activeProject.caseStudy.tools}</p>
                     </div>
                     {activeProject.caseStudy.future && (
                       <div style={{ gridColumn: '1 / -1' }}>
-                        <p style={{ fontSize: 9, letterSpacing: '0.12em', color: ACCENT, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 6px' }}>What's Next</p>
+                        <p style={{ fontSize: 9, letterSpacing: '0.12em', color: INK, textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 6px' }}>What's Next</p>
                         <p style={{ fontSize: 14, color: '#666', fontFamily: 'Inria Serif, serif', margin: 0, lineHeight: 1.7 }}>{activeProject.caseStudy.future}</p>
                       </div>
                     )}
