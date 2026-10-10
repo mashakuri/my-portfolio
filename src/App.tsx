@@ -145,6 +145,11 @@ const ACCENT = '#C6B3E3'
 // Motion for the intro → two-column transition
 const EASE = 'cubic-bezier(0.65, 0, 0.35, 1)'
 const MOVE = `1s ${EASE}`
+// Text that fades/rises in during the opening
+const popIn = (on: boolean, delay = 0): React.CSSProperties => ({
+  opacity: on ? 1 : 0, transform: on ? 'none' : 'translateY(6px)',
+  transition: `opacity 0.7s ease ${delay}s, transform 0.7s ease ${delay}s`,
+})
 // Things that stay hidden on the intro screen and fade in once it slides away
 const revealed = (intro: boolean, delay = 0): React.CSSProperties => ({
   opacity: intro ? 0 : 1,
@@ -153,7 +158,47 @@ const revealed = (intro: boolean, delay = 0): React.CSSProperties => ({
   transition: intro ? 'opacity 0.3s ease, transform 0.3s ease' : `opacity 0.6s ease ${delay + 0.5}s, transform 0.6s ease ${delay + 0.5}s`,
 })
 
-function TypingName() {
+// Figma-style selection frame: dashed border, corner handles, optional label tag
+function SelectionBox({ label, visible, inset = '-8px -8px' }: { label?: string, visible: boolean, inset?: string }) {
+  const corner: React.CSSProperties = { position: 'absolute', width: 5, height: 5, border: `1.5px solid ${ACCENT}`, background: '#f5f5f5', boxSizing: 'border-box' }
+  return (
+    <div style={{ position: 'absolute', inset, border: `1px dashed ${ACCENT}`, pointerEvents: 'none', opacity: visible ? 1 : 0, transition: 'opacity 0.25s ease' }}>
+      <div style={{ ...corner, top: -3, left: -3 }} />
+      <div style={{ ...corner, top: -3, right: -3 }} />
+      <div style={{ ...corner, bottom: -3, left: -3 }} />
+      <div style={{ ...corner, bottom: -3, right: -3 }} />
+      {label && (
+        <div style={{ position: 'absolute', top: -19, left: -1, background: ACCENT, color: '#fff', fontSize: 9, fontFamily: 'monospace', padding: '2px 6px', whiteSpace: 'nowrap', letterSpacing: '0.03em' }}>{label}</div>
+      )}
+    </div>
+  )
+}
+
+// Square photo that behaves like a Figma component: frame shows on its own when it first pops in, then on hover
+function Photo({ shown }: { shown: boolean }) {
+  const [hovered, setHovered] = useState(false)
+  const [intro, setIntro] = useState(false)
+  useEffect(() => {
+    if (!shown) return
+    const a = setTimeout(() => setIntro(true), 1000)
+    const b = setTimeout(() => setIntro(false), 2900)
+    return () => { clearTimeout(a); clearTimeout(b) }
+  }, [shown])
+  return (
+    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      style={{
+        position: 'relative', width: 120, height: 120,
+        opacity: shown ? 1 : 0, transform: shown ? 'scale(1)' : 'scale(0.85)',
+        transition: `opacity 0.6s ease, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)`,
+      }}>
+      <img src="/headshot.jpg" alt="Masha Kuritsyn"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3, display: 'block' }} />
+      <SelectionBox label="❖ masha.jpg" visible={intro || hovered} />
+    </div>
+  )
+}
+
+function TypingName({ onDone }: { onDone?: () => void }) {
   const [displayed, setDisplayed] = useState('')
   const [typing, setTyping] = useState(true)
   const [showBox, setShowBox] = useState(true)
@@ -161,7 +206,7 @@ function TypingName() {
   useEffect(() => {
     if (!typing) return
     if (displayed.length === FULL_NAME.length) {
-      setTimeout(() => { setTyping(false); setShowBox(false) }, 600)
+      setTimeout(() => { setTyping(false); setShowBox(false); onDone?.() }, 600)
       return
     }
     const t = setTimeout(() => setDisplayed(FULL_NAME.slice(0, displayed.length + 1)), 80)
@@ -234,12 +279,21 @@ function App() {
   const heroParts = useRef<(HTMLDivElement | null)[]>([])
   const [centerShift, setCenterShift] = useState<number[]>([])
   const [introScale, setIntroScale] = useState(1.12)
+  const [heroOpen, setHeroOpen] = useState(false)       // photo + major/school revealed
+  const [heroSettled, setHeroSettled] = useState(false) // finished growing, safe to stop clipping
+
+  useEffect(() => {
+    if (!heroOpen) return
+    const t = setTimeout(() => setHeroSettled(true), 950)
+    return () => clearTimeout(t)
+  }, [heroOpen])
 
   useEffect(() => { modalRef.current = !!activeProject }, [activeProject])
 
   const goIntro = (v: boolean) => {
     introRef.current = v
     setIntro(v)
+    if (!v) setHeroOpen(true)
     lockUntil.current = Date.now() + 1100 // ignore leftover trackpad momentum while it animates
   }
 
@@ -256,7 +310,7 @@ function App() {
     document.fonts?.ready.then(measure)
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [])
+  }, [heroSettled])
 
   useEffect(() => {
     const atTop = () => (rightCol.current?.scrollTop ?? 0) <= 0
@@ -339,7 +393,11 @@ function App() {
   })
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#f5f5f5', overflow: 'hidden', position: 'relative' }}>
+    <div style={{
+      display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative',
+      // faint Figma-canvas dot grid
+      background: 'radial-gradient(circle, #d6d6d6 1px, transparent 1.3px) 0 0 / 22px 22px, #f5f5f5',
+    }}>
       <DesignCanvas />
       <DesignerCursor modalOpen={!!activeProject} />
 
@@ -359,18 +417,20 @@ function App() {
         transition: `left ${MOVE}, top ${MOVE}, transform ${MOVE}`,
         display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
       }}>
+        {/* Step 1: only the name, typing in. Step 2: space opens above/below it (name eases down a little)
+            while the photo pops up and the major + school fade in together. */}
         {[
-          <div style={{ position: 'relative', width: 112, height: 112, marginBottom: 28, opacity: 0, animation: 'fadeUp 0.8s ease 0.2s forwards' }}>
-            <img src="/headshot.jpg" alt="Masha Kuritsyn"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />
-          </div>,
-          <TypingName />,
-          <p style={{ fontSize: 19, color: '#444', margin: '18px 0 6px', fontFamily: 'Inria Serif, serif', opacity: 0, animation: 'fadeUp 0.7s ease 1.4s forwards' }}>Cognitive Science · ML · Design</p>,
-          <p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif', opacity: 0, animation: 'fadeUp 0.7s ease 1.6s forwards' }}>UC San Diego</p>,
-        ].map((el, i) => (
+          { collapsible: true, el: <div style={{ paddingBottom: 28 }}><Photo shown={heroOpen} /></div> },
+          { collapsible: false, el: <TypingName onDone={() => setHeroOpen(true)} /> },
+          { collapsible: true, el: <p style={{ fontSize: 19, color: '#444', margin: 0, padding: '18px 0 6px', fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.15) }}>Cognitive Science · ML · Design</p> },
+          { collapsible: true, el: <p style={{ fontSize: 19, color: '#666', margin: 0, fontFamily: 'Inria Serif, serif', ...popIn(heroOpen, 0.25) }}>UC San Diego</p> },
+        ].map(({ collapsible, el }, i) => (
           <div key={i} ref={r => { heroParts.current[i] = r }}
-            style={{ width: 'fit-content', transform: `translateX(${intro ? centerShift[i] ?? 0 : 0}px)`, transition: `transform ${MOVE}` }}>
-            {el}
+            style={{
+              width: 'fit-content', transform: `translateX(${intro ? centerShift[i] ?? 0 : 0}px)`, transition: `transform ${MOVE}, grid-template-rows 0.9s ${EASE}`,
+              ...(collapsible ? { display: 'grid', gridTemplateRows: heroOpen ? '1fr' : '0fr' } : {}),
+            }}>
+            {collapsible ? <div style={{ minHeight: 0, overflow: heroSettled ? 'visible' : 'hidden' }}>{el}</div> : el}
           </div>
         ))}
 
@@ -437,7 +497,7 @@ function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 680 }}>
             {projects.map(p => (
               <div key={p.id} onClick={() => setActiveProject(p)}
-                style={{ border: '1px dashed #ddd', padding: '20px 24px', transition: 'border-color 0.2s', cursor: 'pointer' }}
+                style={{ border: '1px dashed #ddd', background: '#f5f5f5', padding: '20px 24px', transition: 'border-color 0.2s', cursor: 'pointer' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = ACCENT)}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = '#ddd')}
               >
@@ -454,7 +514,7 @@ function App() {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxWidth: 680, marginTop: 32 }}>
             {skills.map(s => (
-              <span key={s} style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', border: '1px dashed #ddd', padding: '5px 12px', letterSpacing: '0.03em' }}>{s}</span>
+              <span key={s} style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', border: '1px dashed #ddd', background: '#f5f5f5', padding: '5px 12px', letterSpacing: '0.03em' }}>{s}</span>
             ))}
           </div>
         </section>
