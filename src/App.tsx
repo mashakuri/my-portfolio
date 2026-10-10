@@ -12,8 +12,8 @@ const projects = [
   {
     id: 5,
     title: 'Kitchens for Good Mural',
-    logo: '',
-    tag: 'Mural Design · 2026',   // TODO: Masha to confirm role + date
+    logo: '/KFG.png',
+    tag: 'UX Designer · Jun – Sep 2026',
     org: 'Kitchens for Good',
     caseStudy: {
       tagline: '',                // empty → popup shows "Case study coming soon"
@@ -165,8 +165,9 @@ const projects = [
 
 const FULL_NAME = 'Masha Kuritsyn'
 const ACCENT = '#C6B3E3' // light purple for lines, borders, frames
+const FRAME_X = 9 // every hero frame sits this far left of its content, so their left edges line up
 const INK = '#7E6996'    // muted darker purple for text, easy to read without being too saturated
-const TAG = '#7F5FB8'    // deeper purple for frame label tags (★ masha.jpg)
+const TAG = ACCENT        // frame label tags (★ masha.jpg, h1, p) use the original light purple
 
 // Motion for the intro → two-column transition
 const EASE = 'cubic-bezier(0.65, 0, 0.35, 1)'
@@ -211,7 +212,7 @@ function Photo({ shown, framed }: { shown: boolean, framed: boolean }) {
       }}>
       <img src="/headshot.jpg" alt="Masha Kuritsyn"
         style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3, display: 'block' }} />
-      <SelectionBox label="★ masha.jpg" visible={framed} />
+      <SelectionBox label="★ masha.jpg" visible={framed} inset={`-8px -${FRAME_X}px`} />
     </div>
   )
 }
@@ -223,7 +224,7 @@ function FramedLine({ top, framed, children }: { top: number, framed: boolean, c
     <div style={{ paddingTop: top, paddingBottom: 6 }}>
       <div style={{ position: 'relative' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         {children}
-        <SelectionBox visible={framed && hovered} inset="-4px -9px" />
+        <SelectionBox label="p" visible={framed && hovered} inset={`-4px -${FRAME_X}px`} />
       </div>
     </div>
   )
@@ -233,6 +234,7 @@ function TypingName({ onReveal }: { onReveal?: () => void }) {
   const [displayed, setDisplayed] = useState('')
   const [typing, setTyping] = useState(true)
   const [showBox, setShowBox] = useState(true)
+  const [hovered, setHovered] = useState(false)
 
   useEffect(() => {
     if (!typing) return
@@ -246,14 +248,9 @@ function TypingName({ onReveal }: { onReveal?: () => void }) {
   }, [displayed, typing])
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
-      {showBox && (
-        <div style={{ position: 'absolute', inset: '-8px -12px', border: `1px dashed ${ACCENT}`, pointerEvents: 'none' }}>
-          {[{ top: -3, left: -3 }, { top: -3, right: -3 }, { bottom: -3, left: -3 }, { bottom: -3, right: -3 }].map((s, i) => (
-            <div key={i} style={{ position: 'absolute', width: 5, height: 5, border: `1.5px solid ${ACCENT}`, background: '#f5f5f5', boxSizing: 'border-box', ...s as any }} />
-          ))}
-        </div>
-      )}
+    <div data-own-frame="" style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <SelectionBox label="h1" visible={showBox || hovered} inset={`-6px -${FRAME_X}px`} />
       {/* The hidden copy of the full name keeps the width fixed while letters type in, so the layout doesn't jump */}
       <h1 style={{ fontSize: 62, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif', lineHeight: 1.05, whiteSpace: 'nowrap', position: 'relative' }}>
         <span style={{ visibility: 'hidden' }}>{FULL_NAME}</span>
@@ -533,12 +530,12 @@ function App() {
                 onMouseEnter={e => (e.currentTarget.style.borderColor = ACCENT)}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = '#ddd')}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 32, marginBottom: 4 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     {p.logo && <img src={p.logo} alt="" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} />}
                     <p style={{ fontSize: 19, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif' }}>{p.title}</p>
                   </div>
-                  <span style={{ fontSize: 11, color: INK, fontFamily: 'monospace' }}>{p.tag}</span>
+                  <span style={{ fontSize: 11, color: INK, fontFamily: 'monospace', textAlign: 'right', flexShrink: 0 }}>{p.tag}</span>
                 </div>
                 <p style={{ fontSize: 12, color: '#aaa', margin: '4px 0 0', fontFamily: 'monospace' }}>{p.org}</p>
               </div>
