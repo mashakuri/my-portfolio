@@ -187,7 +187,7 @@ function Photo({ shown }: { shown: boolean }) {
   return (
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       style={{
-        position: 'relative', width: 120, height: 120,
+        position: 'relative', width: 148, height: 148,
         opacity: shown ? 1 : 0, transform: shown ? 'scale(1)' : 'scale(0.85)',
         transition: `opacity 0.6s ease, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)`,
       }}>
