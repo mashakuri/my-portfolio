@@ -532,20 +532,24 @@ function App() {
                 onMouseLeave={e => (e.currentTarget.style.borderColor = '#ddd')}
               >
                 {(() => {
-                  // tag reads "Role · Role · Date" — date goes top-right, role sits under it
+                  // tag reads "Role · Role · Date" — role goes top-right, date sits under it
                   const cut = p.tag.lastIndexOf(' · ')
-                  const role = cut > -1 ? p.tag.slice(0, cut) : ''
-                  const date = cut > -1 ? p.tag.slice(cut + 3) : p.tag
+                  const role = cut > -1 ? p.tag.slice(0, cut) : p.tag
+                  const date = cut > -1 ? p.tag.slice(cut + 3) : ''
                   return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '38px 1fr auto', columnGap: 0, rowGap: 4, alignItems: 'center' }}>
-                      <div style={{ gridRow: '1 / span 2', alignSelf: 'center' }}>
-                        {p.logo && <img src={p.logo} alt="" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4, display: 'block' }} />}
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24, marginBottom: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {p.logo && <img src={p.logo} alt="" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 4 }} />}
+                          <p style={{ fontSize: 19, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif' }}>{p.title}</p>
+                        </div>
+                        <span style={{ fontSize: 11, color: INK, fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{role}</span>
                       </div>
-                      <p style={{ fontSize: 19, fontWeight: 400, margin: 0, fontFamily: 'Inria Serif, serif' }}>{p.title}</p>
-                      <span style={{ fontSize: 11, color: INK, fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', paddingLeft: 24 }}>{date}</span>
-                      <p style={{ fontSize: 12, color: '#aaa', margin: 0, fontFamily: 'monospace' }}>{p.org}</p>
-                      <span style={{ fontSize: 11, color: '#999', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', paddingLeft: 24 }}>{role}</span>
-                    </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 24, marginTop: 4 }}>
+                        <p style={{ fontSize: 12, color: '#aaa', margin: 0, fontFamily: 'monospace' }}>{p.org}</p>
+                        <span style={{ fontSize: 11, color: '#999', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{date}</span>
+                      </div>
+                    </>
                   )
                 })()}
               </div>
