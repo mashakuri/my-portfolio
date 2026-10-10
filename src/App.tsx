@@ -10,6 +10,30 @@ const skills = [
 
 const projects = [
   {
+    id: 5,
+    title: 'Kitchens for Good Mural',
+    logo: '',
+    tag: 'Mural Design · 2026',   // TODO: Masha to confirm role + date
+    org: 'Kitchens for Good',
+    caseStudy: {
+      tagline: '',                // empty → popup shows "Case study coming soon"
+      question: '',
+      inspiration: '',
+      solution: '',
+      features: [] as { name: string, desc: string }[],
+      stats: [] as string[],
+      tools: '',
+      future: '',
+      caseStudyLink: '',
+      prototypeLink: '',
+      devpostLink: '',
+      role: '',
+      carouselBg: '#f0eeea',
+      wideImages: false,
+      images: [] as string[],
+    }
+  },
+  {
     id: 1,
     title: 'SolSpace',
     logo: '/SUNGOD.png',
@@ -141,7 +165,8 @@ const projects = [
 
 const FULL_NAME = 'Masha Kuritsyn'
 const ACCENT = '#C6B3E3' // light purple for lines, borders, frames
-const INK = '#7F5FB8'    // darker purple for text, so it's easy to read
+const INK = '#7E6996'    // muted darker purple for text, easy to read without being too saturated
+const TAG = '#7F5FB8'    // deeper purple for frame label tags (★ masha.jpg)
 
 // Motion for the intro → two-column transition
 const EASE = 'cubic-bezier(0.65, 0, 0.35, 1)'
@@ -169,7 +194,7 @@ function SelectionBox({ label, visible, inset = '-8px -8px' }: { label?: string,
       <div style={{ ...corner, bottom: -3, left: -3 }} />
       <div style={{ ...corner, bottom: -3, right: -3 }} />
       {label && (
-        <div style={{ position: 'absolute', top: -19, left: -1, background: INK, color: '#fff', fontSize: 9, fontFamily: 'monospace', padding: '2px 6px', whiteSpace: 'nowrap', letterSpacing: '0.03em' }}>{label}</div>
+        <div style={{ position: 'absolute', top: -19, left: -1, background: TAG, color: '#fff', fontSize: 9, fontFamily: 'monospace', padding: '2px 6px', whiteSpace: 'nowrap', letterSpacing: '0.03em' }}>{label}</div>
       )}
     </div>
   )
@@ -191,13 +216,14 @@ function Photo({ shown, framed }: { shown: boolean, framed: boolean }) {
   )
 }
 
-// A line of text with a dashed selection frame around it
+// A line of text that shows a dashed selection frame on hover
 function FramedLine({ top, framed, children }: { top: number, framed: boolean, children: React.ReactNode }) {
+  const [hovered, setHovered] = useState(false)
   return (
     <div style={{ paddingTop: top, paddingBottom: 6 }}>
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         {children}
-        <SelectionBox visible={framed} inset="-4px -9px" />
+        <SelectionBox visible={framed && hovered} inset="-4px -9px" />
       </div>
     </div>
   )
@@ -214,8 +240,8 @@ function TypingName({ onReveal }: { onReveal?: () => void }) {
       setTimeout(() => { setTyping(false); setShowBox(false) }, 500)
       return
     }
-    if (displayed.length === 9) onReveal?.() // "Masha Kur" — start bringing in the rest while the last name finishes
-    const t = setTimeout(() => setDisplayed(FULL_NAME.slice(0, displayed.length + 1)), 65)
+    if (displayed.length === 12) onReveal?.() // "Masha Kurits" — start bringing in the rest while the last name finishes
+    const t = setTimeout(() => setDisplayed(FULL_NAME.slice(0, displayed.length + 1)), 72)
     return () => clearTimeout(t)
   }, [displayed, typing])
 
@@ -498,12 +524,12 @@ function App() {
           </svg>
         </div>
 
-        <section id="projects" style={sectionStyle}>
+        <section id="projects" style={{ ...sectionStyle, height: 'auto', minHeight: '100vh', paddingTop: 'min(18vh, 150px)', paddingBottom: 72 }}>
           <p style={{ fontSize: 10, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 28, marginTop: 0 }}>Projects</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 680 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 680 }}>
             {projects.map(p => (
               <div key={p.id} onClick={() => setActiveProject(p)}
-                style={{ border: '1px dashed #ddd', background: '#f5f5f5', padding: '20px 24px', transition: 'border-color 0.2s', cursor: 'pointer' }}
+                style={{ border: '1px dashed #ddd', background: '#f5f5f5', padding: '15px 22px', transition: 'border-color 0.2s', cursor: 'pointer' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = ACCENT)}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = '#ddd')}
               >
@@ -518,7 +544,7 @@ function App() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxWidth: 680, marginTop: 32 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxWidth: 680, marginTop: 24 }}>
             {skills.map(s => (
               <span key={s} style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', border: '1px dashed #ddd', background: '#f5f5f5', padding: '5px 12px', letterSpacing: '0.03em' }}>{s}</span>
             ))}

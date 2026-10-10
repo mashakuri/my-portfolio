@@ -7,7 +7,8 @@ export default function DesignerCursor({ modalOpen = false }: { modalOpen?: bool
   const rafRef = useRef<number | null>(null)
   const R = 10, ARM = 7, DOT = 2
   const C = "#C6B3E3"
-  const INK = "#7F5FB8"
+  const INK = "#7E6996" // muted text purple
+  const TAG = "#7F5FB8" // label tag purple
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -43,7 +44,7 @@ export default function DesignerCursor({ modalOpen = false }: { modalOpen?: bool
               {[{ top: -3, left: -3 }, { top: -3, right: -3 }, { bottom: -3, left: -3 }, { bottom: -3, right: -3 }].map((s, i) => (
                 <div key={i} style={{ position: 'absolute', width: 5, height: 5, border: `1.5px solid ${C}`, background: '#f5f5f5', boxSizing: 'border-box', ...s as any }} />
               ))}
-              <div style={{ position: 'absolute', top: -18, left: 0, background: INK, color: '#fff', fontSize: 9, fontFamily: 'monospace', padding: '1px 5px' }}>{box.label}</div>
+              <div style={{ position: 'absolute', top: -18, left: 0, background: TAG, color: '#fff', fontSize: 9, fontFamily: 'monospace', padding: '1px 5px' }}>{box.label}</div>
             </div>
           )}
           <svg style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh" }}>
