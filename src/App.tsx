@@ -2,11 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import DesignerCursor from './DesignerCursor'
 import DesignCanvas from './DesignCanvas'
 
-const skills = [
-  'Figma', 'Framer', 'Adobe Creative Suite', 'UX Research', 'Usability Testing',
-  'Prototyping', 'Design Systems', 'HTML/CSS', 'JavaScript', 'React', 'R', 'Java',
-  'Supabase', 'Vercel', 'Claude', 'Cursor', 'Figma Make'
+// Toolkit, grouped (matches the resume)
+const skillGroups = [
+  { group: 'Design', items: ['Wireframing', 'Prototyping', 'Visual Design', 'Design Systems', 'Branding', 'Stakeholder Communication'] },
+  { group: 'Research', items: ['User Research', 'Usability Testing', 'A/B Testing', 'Competitive Analysis', 'Data Analysis'] },
+  { group: 'Tools', items: ['Figma', 'Figma Make', 'Framer', 'Adobe Creative Suite', 'Procreate', 'Canva', 'Notion', 'Cursor', 'Claude', 'Vercel', 'Supabase', 'Datavyu', 'Meta SAM', 'Qwen'] },
+  { group: 'Code', items: ['HTML/CSS', 'JavaScript', 'React', 'Python', 'R', 'Java'] },
 ]
+const skillCount = skillGroups.reduce((n, g) => n + g.items.length, 0)
 
 const projects = [
   {
@@ -16,21 +19,32 @@ const projects = [
     tag: 'UX Designer · Jun – Sep 2026',
     org: 'DesignCo, Upgrade Program',
     caseStudy: {
-      tagline: '',                // empty → popup shows "Case study coming soon"
-      question: '',
-      inspiration: '',
-      solution: '',
-      features: [] as { name: string, desc: string }[],
-      stats: [] as string[],
-      tools: '',
-      future: '',
+      tagline: 'Transforming lives through culinary arts',
+      question: 'How can we create a mural for the Kitchens for Good community that empowers apprentices, staff, and the public by conveying the nonprofit\'s core values?',
+      inspiration: 'Kitchens for Good is a San Diego nonprofit that transforms lives through culinary arts and apprenticeship programs. Our team of four was asked to design a mural for their upcoming HQ that represents growth and knowledge-sharing across their whole mission. We grounded it in their core values (equity, human service, growth mindset, and sustainability) and in 8 interviews with community members, apprentices, and staff.',
+      solution: 'One continuous painting: a sizzling pan, rising fire and smoke, and hands passing food, kitchenware, a chef\'s hat, and a business certificate, each standing for a Kitchens for Good program. Our competitive analysis showed that more immersive (AR, physical installations) isn\'t always more effective, so we paired the mural with a QR-connected interactive website where visitors hover over parts of the mural to learn what they mean.',
+      features: [
+        { name: 'Fire & Smoke', desc: 'Represents what interviewees wanted the mural to feel like: warmth, empowerment, community, and transformation.' },
+        { name: 'Passing Hands', desc: 'Each hand passes a program: a certificate (micro-enterprise), food (meal contracts), kitchenware (KFG shop), a chef\'s hat (apprenticeships).' },
+        { name: 'Sizzling Pan', desc: 'The action and determination of KFG staff and apprentices. Fruits and vegetables keep the message timeless.' },
+        { name: 'Interactive Mural', desc: 'A QR-connected website that matches the KFG redesign. Hover over the mural to explore each element.' },
+      ],
+      stats: [
+        '8 interviews across community members, apprentices, and staff',
+        'How should it feel? Warmth (3/8), Safety (3/8), Empowerment (2/8)',
+        'Who is it for? Apprentices first (3/8), everyone equally (3/8), community first (2/8)',
+      ],
+      tools: 'Sketching · Adobe Illustrator · Vercel',
+      future: 'The design is on track to be proposed to Kitchens for Good\'s Board of Directors. If approved, there may be a chance to physically paint it (12 ft × 23.2 ft) when the new HQ opens next year.',
       caseStudyLink: '',
-      prototypeLink: '',
+      prototypeLink: 'https://kfg-mural.vercel.app/',
       devpostLink: '',
-      role: '',
-      carouselBg: '#f0eeea',
+      role: 'UI/UX Designer · Team: Royce Li (PM), Erin Law & Shiyo Ohashi (Visual Design), mentored by Leith Fava',
+      carouselBg: '#f7f0de',
+      prototypeLabel: 'Interactive Mural',
+      statsLabel: 'What We Heard',
       wideImages: false,
-      images: [] as string[],
+      images: ['/KFG_MURAL.jpg', '/KFG_PROCESS.jpg', '/KFG_SITE.jpg', '/KFG_SITE2.jpg'],
     }
   },
   {
@@ -276,7 +290,7 @@ function ImageCarousel({ images, bg = '#111', wide = false }: { images: string[]
     <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: wide ? 500 : 'unset', background: bg, borderRadius: wide ? 8 : '16px 0 0 16px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {images.map((src, i) => (
         <img key={src} src={src} alt=""
-          style={{ position: 'absolute', maxWidth: wide ? '100%' : 'none', maxHeight: wide ? '100%' : 'none', width: wide ? '100%' : 'auto', height: wide ? 'auto' : '90%', objectFit: 'contain', borderRadius: wide ? 4 : 24, opacity: i === current ? 1 : 0, transition: 'opacity 0.6s ease' }}
+          style={{ position: 'absolute', maxWidth: wide ? '100%' : '90%', maxHeight: wide ? '100%' : 'none', width: wide ? '100%' : 'auto', height: wide ? 'auto' : '90%', objectFit: 'contain', borderRadius: wide ? 4 : 24, opacity: i === current ? 1 : 0, transition: 'opacity 0.6s ease' }}
         />
       ))}
       {images.length > 1 && (
@@ -561,14 +575,21 @@ function App() {
               style={{ fontSize: 11, fontFamily: 'monospace', color: toolkitOpen ? INK : '#999', border: `1px dashed ${toolkitOpen ? ACCENT : '#ddd'}`, background: '#f5f5f5', padding: '6px 14px', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = INK }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = toolkitOpen ? ACCENT : '#ddd'; e.currentTarget.style.color = toolkitOpen ? INK : '#999' }}>
-              my toolkit <span style={{ opacity: 0.7 }}>({skills.length})</span>
+              my toolkit <span style={{ opacity: 0.7 }}>({skillCount})</span>
               <span style={{ display: 'inline-block', transform: toolkitOpen ? 'rotate(45deg)' : 'none', transition: `transform 0.3s ${EASE}` }}>+</span>
             </button>
             <div style={{ display: 'grid', gridTemplateRows: toolkitOpen ? '1fr' : '0fr', transition: `grid-template-rows 0.45s ${EASE}` }}>
               <div style={{ minHeight: 0, overflow: 'hidden' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 12 }}>
-                  {skills.map((s, i) => (
-                    <span key={s} style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', border: '1px dashed #ddd', background: '#f5f5f5', padding: '5px 12px', letterSpacing: '0.03em', opacity: toolkitOpen ? 1 : 0, transform: toolkitOpen ? 'none' : 'translateY(-4px)', transition: `opacity 0.3s ease ${toolkitOpen ? i * 0.02 : 0}s, transform 0.3s ease ${toolkitOpen ? i * 0.02 : 0}s` }}>{s}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 14 }}>
+                  {skillGroups.map(({ group, items }, gi) => (
+                    <div key={group} style={{ display: 'flex', gap: 14, alignItems: 'baseline', opacity: toolkitOpen ? 1 : 0, transform: toolkitOpen ? 'none' : 'translateY(-4px)', transition: `opacity 0.3s ease ${toolkitOpen ? gi * 0.06 : 0}s, transform 0.3s ease ${toolkitOpen ? gi * 0.06 : 0}s` }}>
+                      <span style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'monospace', color: INK, width: 64, flexShrink: 0 }}>{group}</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {items.map(s => (
+                          <span key={s} style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', border: '1px dashed #ddd', background: '#f5f5f5', padding: '4px 10px', letterSpacing: '0.03em' }}>{s}</span>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -680,7 +701,7 @@ function App() {
                     <a href={activeProject.caseStudy.prototypeLink} target="_blank" style={linkStyle()}
                       onMouseEnter={e => { e.currentTarget.style.background = INK; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = INK }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#999'; e.currentTarget.style.borderColor = '#ddd' }}
-                    >Try Prototype →</a>
+                    >{(activeProject.caseStudy as { prototypeLabel?: string }).prototypeLabel ?? 'Try Prototype'} →</a>
                   )}
                   {activeProject.caseStudy.devpostLink && (
                     <a href={activeProject.caseStudy.devpostLink} target="_blank" style={linkStyle()}
@@ -728,7 +749,7 @@ function App() {
 
                   {activeProject.caseStudy.stats.length > 0 && (
                     <>
-                      <p style={{ fontSize: 9, letterSpacing: '0.12em', color: '#bbb', textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 12px' }}>Why It Matters</p>
+                      <p style={{ fontSize: 9, letterSpacing: '0.12em', color: '#bbb', textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 12px' }}>{(activeProject.caseStudy as { statsLabel?: string }).statsLabel ?? 'Why It Matters'}</p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28 }}>
                         {activeProject.caseStudy.stats.map((s, i) => (
                           <div key={i} style={{ borderLeft: `2px solid ${ACCENT}`, paddingLeft: 12 }}>
