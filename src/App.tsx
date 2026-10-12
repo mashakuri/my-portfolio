@@ -42,6 +42,7 @@ const projects = [
       role: 'UI/UX Designer · Team: Royce Li (PM), Erin Law & Shiyo Ohashi (Visual Design), mentored by Leith Fava',
       carouselBg: '#f7f0de',
       prototypeLabel: 'Interactive Mural',
+      embedUrl: 'https://kfg-mural.vercel.app/',
       statsLabel: 'What We Heard',
       wideImages: false,
       images: ['/KFG_MURAL.jpg', '/KFG_PROCESS.jpg', '/KFG_SITE.jpg', '/KFG_SITE2.jpg'],
@@ -239,6 +240,36 @@ function FramedLine({ top, bottom, framed, children }: { top: number, bottom: nu
       <div style={{ position: 'relative' }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         {children}
         <SelectionBox label="p" visible={framed && hovered} inset={`-4px -${FRAME_X}px`} />
+      </div>
+    </div>
+  )
+}
+
+// A live website shown inside a mini browser window. The site renders at desktop size
+// and is scaled down to fit, so it looks (and hovers) like the real thing.
+function EmbeddedSite({ url }: { url: string }) {
+  const box = useRef<HTMLDivElement>(null)
+  const [w, setW] = useState(560)
+  const SITE_W = 1280, SITE_H = 800
+  useEffect(() => {
+    const el = box.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setW(el.clientWidth))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const scale = w / SITE_W
+  const host = url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+  return (
+    <div style={{ border: '1px solid #e6e6e6', borderRadius: 8, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderBottom: '1px solid #eee', background: '#fafafa' }}>
+        {['#e7e2ee', '#e7e2ee', '#e7e2ee'].map((c, i) => <span key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />)}
+        <span style={{ flex: 1, margin: '0 8px', fontSize: 10, fontFamily: 'monospace', color: '#999', background: '#fff', border: '1px solid #eee', borderRadius: 4, padding: '2px 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{host}</span>
+        <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, fontFamily: 'monospace', color: INK, textDecoration: 'none' }}>open ↗</a>
+      </div>
+      <div ref={box} style={{ position: 'relative', width: '100%', height: SITE_H * scale, overflow: 'hidden' }}>
+        <iframe src={url} title={host} loading="lazy"
+          style={{ position: 'absolute', top: 0, left: 0, width: SITE_W, height: SITE_H, border: 0, transform: `scale(${scale})`, transformOrigin: 'top left' }} />
       </div>
     </div>
   )
@@ -732,6 +763,15 @@ function App() {
 
                   <p style={{ fontSize: 9, letterSpacing: '0.12em', color: '#bbb', textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 8px' }}>{activeProject.caseStudy.wideImages ? 'What I Built' : 'Our Solution'}</p>
                   <p style={{ fontSize: 16, lineHeight: 1.8, color: '#666', fontFamily: 'Inria Serif, serif', margin: '0 0 28px' }}>{activeProject.caseStudy.solution}</p>
+
+                  {(activeProject.caseStudy as { embedUrl?: string }).embedUrl && (
+                    <>
+                      <p style={{ fontSize: 9, letterSpacing: '0.12em', color: '#bbb', textTransform: 'uppercase', fontFamily: 'monospace', margin: '0 0 10px' }}>Try It · scroll and hover to explore</p>
+                      <div style={{ marginBottom: 28 }}>
+                        <EmbeddedSite url={(activeProject.caseStudy as { embedUrl?: string }).embedUrl!} />
+                      </div>
+                    </>
+                  )}
 
                   {activeProject.caseStudy.features.length > 0 && (
                     <>
