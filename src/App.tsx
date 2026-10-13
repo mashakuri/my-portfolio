@@ -36,7 +36,7 @@ const projects = [
       ],
       tools: 'Sketching · Adobe Illustrator · Vercel',
       future: 'The design is on track to be proposed to Kitchens for Good\'s Board of Directors. If approved, there may be a chance to physically paint it (12 ft × 23.2 ft) when the new HQ opens next year.',
-      caseStudyLink: '',
+      caseStudyLink: '/KFG_Case_Study.pdf',
       prototypeLink: 'https://kfg-mural.vercel.app/',
       devpostLink: '',
       role: 'UI/UX Designer · Team: Royce Li (PM), Erin Law & Shiyo Ohashi (Visual Design), mentored by Leith Fava',
