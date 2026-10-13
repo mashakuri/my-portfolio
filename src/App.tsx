@@ -45,7 +45,7 @@ const projects = [
       embedUrl: 'https://kfg-mural.vercel.app/',
       statsLabel: 'What We Heard',
       wideImages: false,
-      images: ['/KFG_MURAL.jpg', '/KFG_PROCESS.jpg', '/KFG_SITE.jpg', '/KFG_SITE2.jpg'],
+      images: ['/KFG_MURAL.jpg'],
     }
   },
   {
