@@ -57,10 +57,10 @@ const projects = [
     caseStudy: {
       tagline: 'No More FOMO',
       question: 'How do we help students feel genuine connection and satisfaction as a part of their college experience?',
-      inspiration: 'Keeping track of clubs currently happens mainly on Instagram — but by the time you see a post, the event might have already passed. Or you discover a club that really interests you weeks, even months, too late.',
+      inspiration: 'Keeping track of clubs currently happens mainly on Instagram, but by the time you see a post, the event might have already passed. Or you discover a club that really interests you weeks, even months, too late.',
       solution: 'SolSpace is a student\'s go-to app for finding events, exploring their community, and building lasting connections on campus.',
       features: [
-        { name: 'Bulletin Board', desc: 'Browse and search events with filters — applying for board? Looking for a party? Narrow it down.' },
+        { name: 'Bulletin Board', desc: 'Browse and search events with filters. Applying for board? Looking for a party? Narrow it down.' },
         { name: 'Live Map', desc: 'See events happening around campus in real time, and view friends\' anonymous avatar locations.' },
         { name: 'Connections', desc: 'Text friends about events, add them to your calendar, and see who else is going.' },
         { name: 'Personalization', desc: 'Log your interests, follow hashtags. We\'ll notify you when the right events come up.' },
@@ -89,9 +89,9 @@ const projects = [
     org: 'Figbuild 2026',
     caseStudy: {
       tagline: 'Your Neuroplasticity Visualized',
-      question: 'How might we give people a window into their brain\'s changing structure — so they can finally see, feel, and act on the neural progress that\'s been invisible to them their entire lives?',
+      question: 'How might we give people a window into their brain\'s changing structure, so they can finally see, feel, and act on the neural progress that\'s been invisible to them their entire lives?',
       inspiration: 'Proprioception tells you where your body is in space. But no sense has ever existed for perceiving your own brain changing. 72% of people building new habits find it hard to stay motivated. 46% report a lack of accountability. 48% don\'t even know if what they\'re doing is working. Mylo was built to close that gap.',
-      solution: 'Every person has a unique "neural fingerprint" — a pattern based on their brain structure that\'s constantly evolving. Mylo links to that fingerprint on login, asks about daily habits like sleep, stress, and physical activity, and lets users set a goal: learning a skill, improving performance, building a routine. As users show up, Mylo visualizes their neural pathways as seeds growing into full-bloomed flowers.',
+      solution: 'Every person has a unique "neural fingerprint," a pattern based on their brain structure that\'s constantly evolving. Mylo links to that fingerprint on login, asks about daily habits like sleep, stress, and physical activity, and lets users set a goal: learning a skill, improving performance, building a routine. As users show up, Mylo visualizes their neural pathways as seeds growing into full-bloomed flowers.',
       features: [
         { name: 'Neural Fingerprint', desc: 'A unique, evolving visualization of your brain\'s structure linked to your daily habits and behaviors.' },
         { name: 'Goal Setting', desc: 'Choose a focus and Mylo tracks your progress toward it.' },
@@ -123,13 +123,13 @@ const projects = [
     caseStudy: {
       tagline: 'Pin the moment. Explore what others left behind.',
       
-      inspiration: 'When I first heard the theme "Memories of Us," two things came to mind: how I keep memories, and how I share them. For me it\'s always been physical — photobooths, business cards from cafes, every handwritten card from friends and family. That love of tangible memory-keeping got me thinking about letters and postcards, connecting over a shared moment. Then I shifted from people to places. So many of my memories aren\'t just about who I was with — they\'re tied to a specific space. The feeling of walking back into somewhere and having it all rush back.',
+      inspiration: 'When I first heard the theme "Memories of Us," two things came to mind: how I keep memories, and how I share them. For me it\'s always been physical: photobooths, business cards from cafes, every handwritten card from friends and family. That love of tangible memory-keeping got me thinking about letters and postcards, connecting over a shared moment. Then I shifted from people to places. So many of my memories aren\'t just about who I was with. They\'re tied to a specific space. The feeling of walking back into somewhere and having it all rush back.',
       solution: 'Dear, There. is a shared, anonymous space for leaving and discovering memories tied to real locations. No usernames, no likes. Make a postcard or a letter, add photos, stickers, and doodles, then pin it to the map for anyone passing through to find.',
       features: [
-        { name: 'Postcard & Letter Maker', desc: 'Write a letter or design a postcard — add photos, stickers, and doodles to capture the moment exactly how you remember it.' },
+        { name: 'Postcard & Letter Maker', desc: 'Write a letter or design a postcard. Add photos, stickers, and doodles to capture the moment exactly how you remember it.' },
         { name: 'Pin to the Map', desc: 'Attach your memory to a real location. Anyone who visits that spot can find what you left behind.' },
         { name: 'Anonymous by Design', desc: 'No accounts, no usernames, no likes.' },
-        { name: 'Discover Memories', desc: 'Explore what others have pinned nearby — a shared archive of moments from the same spaces.' },
+        { name: 'Discover Memories', desc: 'Explore what others have pinned nearby, a shared archive of moments from the same spaces.' },
       ],
       stats: [],
       tools: 'Figma · Claude · Supabase · Vercel',
@@ -137,7 +137,7 @@ const projects = [
       caseStudyLink: 'https://www.figma.com/deck/AH2lBFM7qIeo3pIKBVyKFw',
       prototypeLink: 'https://dear-there.vercel.app/',
       devpostLink: '',
-      role: 'Solo — Design, Research & Development',
+      role: 'Solo · Design, Research & Development',
       carouselBg: '#f0eeea',
       wideImages: true,
       images: ['/ONE.png', '/TWO.png', '/THREE.png', '/FOUR.png', '/FIVE.png'],
@@ -152,17 +152,17 @@ const projects = [
     caseStudy: {
       tagline: 'Making affordable housing accessible',
       question: 'How might we streamline the experience of finding and accessing volunteer opportunities on Habitat for Humanity\'s website?',
-      inspiration: 'Habitat for Humanity\'s website had no clear visual hierarchy — it was hard to navigate, the mission was unclear, and getting involved required too many steps. As UX researcher on the team, I led the research process to understand where users were getting lost and what they actually needed.',
+      inspiration: 'Habitat for Humanity\'s website had no clear visual hierarchy. It was hard to navigate, the mission was unclear, and getting involved required too many steps. As UX researcher on the team, I led the research process to understand where users were getting lost and what they actually needed.',
       solution: 'A full redesign of the website with simplified navigation, condensed information architecture, and an integrated local map to help users find volunteer opportunities near them. We also added user testimonials and improved language accessibility throughout.',
       features: [
         { name: 'Simplified Navigation', desc: 'Dropdown menus and condensed information reduce clutter and cognitive load, making key actions easier to find.' },
         { name: 'Local Volunteer Map', desc: 'An integrated map lets users find volunteer opportunities in their area without digging through menus.' },
-        { name: 'Visual Hierarchy', desc: 'Dark blue and black accents create contrast; blue and green tones evoke growth and community — aligned with HFH\'s mission.' },
+        { name: 'Visual Hierarchy', desc: 'Dark blue and black accents create contrast; blue and green tones evoke growth and community, aligned with HFH\'s mission.' },
         { name: 'Clearer Mission', desc: 'Restructured content and stronger copywriting make it immediately clear who HFH is and how to get involved.' },
       ],
       stats: [
-        'Navigation too complex — users couldn\'t find volunteer or donation paths quickly',
-        'Mission unclear — first-time visitors didn\'t understand what HFH does or who it\'s for',
+        'Navigation too complex: users couldn\'t find volunteer or donation paths quickly',
+        'Mission unclear: first-time visitors didn\'t understand what HFH does or who it\'s for',
         'No user testimonials or transparency about the organization\'s reach and impact',
       ],
       tools: 'Figma · UX Research · Surveys & Interviews',
@@ -631,7 +631,7 @@ function App() {
         <section id="me" style={sectionStyle}>
           <p style={{ fontSize: 10, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 28, marginTop: 0 }}>Me!</p>
           <p style={{ fontSize: 22, color: '#444', fontFamily: 'Inria Serif, serif', margin: '0 0 32px', lineHeight: 1.9, maxWidth: 680 }}>
-            Second year at UC San Diego studying Cognitive Science with a concentration in Machine Learning — interested in product design and product management.
+            Second year at UC San Diego studying Cognitive Science with a concentration in Machine Learning, interested in product design and product management.
           </p>
           <p style={{ fontSize: 10, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: 20, marginTop: 0 }}>Other Interests</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 680 }}>
