@@ -62,7 +62,7 @@ const projects = [
       features: [
         { name: 'Map as Home', desc: 'Events happen in real places, so the map shows what\'s happening and where the moment you open the app. A calendar popup filters the pins by date without leaving the map.' },
         { name: 'Bulletin Board', desc: 'Every club\'s events as posters, filterable by date, type or major. Clubs can create a poster from a template or upload their own.' },
-        { name: 'Friend Map', desc: '100% of students we surveyed said friends motivate them to go. See which events friends saved, message them, and turn it off anytime for privacy.' },
+        { name: 'Friend Map', desc: '100% of students we surveyed said friends motivate them to go. The map shows anonymous dots for people you know, so you can tell someone you know is there without anyone being tracked. On an event page, see which friends saved it and reach out.' },
         { name: 'Personalization', desc: 'Add your interests, year, major and college so the right events show up first, with reminders so you never find out too late.' },
       ],
       stats: [
